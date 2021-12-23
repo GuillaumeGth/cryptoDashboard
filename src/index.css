@@ -7,6 +7,9 @@ body {
   -moz-osx-font-smoothing: grayscale;
   
 }
+.grid-header{
+  margin-bottom: 10px;
+}
 input[type="file"] {
   width: 100% !important;
 }
@@ -15,6 +18,7 @@ input[type="file"] {
   border-radius: 8px;
 }
 .content{
+  flex: 100% !important;
   padding: 20px;
 }
 .avatar{
@@ -30,8 +34,12 @@ input[type="file"] {
 .flex{
   display: flex;
 }
-.flex-column{
+.flex.column{
   flex-direction: column;
+}
+.flex.row{
+  flex-direction: row;
+  align-items: center;
 }
 .app-name{
   padding: 10px;
