@@ -1,6 +1,5 @@
-import { env } from 'process';
 import React, {FunctionComponent} from 'react';
-
+import env from "react-dotenv";
 import { GoogleLogin } from 'react-google-login';
 import { useDispatch } from 'react-redux';
 import { logUser} from '../../../Redux/Slices/user'
