@@ -147,8 +147,58 @@ const Dashboard : FunctionComponent =  () => {
     }
     const [currencies, setCurrencies] = useState<Currency[] | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
-    useEffect(() => {        
-        if (transactions || loading) return;    
+    useEffect(() => {           
+        if (transactions || loading || !user?.email) return;    
+        const loadQuotes = (symbols: string[]) => {
+            if (!user?.email) return;
+            const init: RequestInit = {
+                method: 'GET',            
+                headers: 
+                {  
+                    "Accepts": "application/json",                
+                }            
+            }
+            fetch(`${getApiUrl()}/crypto/quotes?symbol=${symbols.join(',')}`, init)
+            .then(res => 
+                res.json().then(data => {
+                    setQuotes(data.data);
+                }));
+        }
+        const loadCurrencies = (transacs: Transaction[]) => {
+            if (!user?.email) return;
+            const cur: string[] = [];
+            transacs?.forEach((value: Transaction, index: number, array: Transaction[]) => {
+                const c = value.finalAmount.split(' ')[1];
+                console.log(c);
+                if(cur.indexOf(c) === -1){
+                    cur.push(c);
+                }
+            });        
+            const init: RequestInit = {
+                method: 'GET',            
+                headers: 
+                {  
+                    "Accepts": "application/json",                
+                }            
+            }
+            fetch(`${getApiUrl()}/currency?symbol=${cur.join(',')}`, init)
+            .then(res => {
+                res.json().then(data => {
+                    const arr: Currency[] = [];
+                    Object.keys(data.data).forEach((value: string) => {
+                        const c = data.data[value];
+                        const currency: Currency = { 
+                            label: c.name, 
+                            symbol: c.symbol, 
+                            logo: c.logo 
+                        };
+                        arr.push(currency);
+                    });              
+                    setCurrencies(arr);
+                    loadQuotes(arr.map(e => e.symbol));                      
+                })
+            });
+        } 
         setLoading(true);    
         const init: RequestInit = {
             method: 'GET',            
@@ -162,56 +212,8 @@ const Dashboard : FunctionComponent =  () => {
             setLoading(false);
             loadCurrencies(data);
         }));
-    });
-    const loadCurrencies = (transacs: Transaction[]) => {
-        const cur: string[] = [];
-        transacs?.forEach((value: Transaction, index: number, array: Transaction[]) => {
-            const c = value.finalAmount.split(' ')[1];
-            console.log(c);
-            if(cur.indexOf(c) === -1){
-                cur.push(c);
-            }
-        });        
-        const init: RequestInit = {
-            method: 'GET',            
-            headers: 
-            {  
-                "Accepts": "application/json",                
-            }            
-        }
-        fetch(`${getApiUrl()}/currency?symbol=${cur.join(',')}`, init)
-        .then(res => {
-            res.json().then(data => {
-                const arr: Currency[] = [];
-                Object.keys(data.data).forEach((value: string) => {
-                    const c = data.data[value];
-                    const currency: Currency = { 
-                        label: c.name, 
-                        symbol: c.symbol, 
-                        logo: c.logo 
-                    };
-                    arr.push(currency);
-                });              
-                setCurrencies(arr);
-                loadQuotes(arr.map(e => e.symbol));                      
-            })
-        });
-    }
-    const [quotes, setQuotes] = useState<any>(null);
-    const loadQuotes = (symbols: string[]) => {
-        const init: RequestInit = {
-            method: 'GET',            
-            headers: 
-            {  
-                "Accepts": "application/json",                
-            }            
-        }
-        fetch(`${getApiUrl()}/crypto/quotes?symbol=${symbols.join(',')}`, init)
-        .then(res => 
-            res.json().then(data => {
-                setQuotes(data.data);
-            }));
-    }
+    }, [transactions, loading, user.email]);
+    const [quotes, setQuotes] = useState<any>(null);    
     const getRows = () => {        
         if (selectedCurrency){
             return transactions?.filter(e => e.finalAmount.toLowerCase().trim().split(' ')[1] === selectedCurrency.symbol.toLowerCase())
