@@ -7,6 +7,21 @@ body {
   -moz-osx-font-smoothing: grayscale;
   
 }
+.self-align-start{
+  align-self: flex-start;
+}
+.positive {
+  color: rgb(52, 153, 52);
+}
+.negative {
+  color: rgb(184, 39, 39);
+}
+.data{
+  padding: 0 5px;
+}
+.hidden{
+  display: none;
+}
 .grid-header{
   margin-bottom: 10px;
 }
@@ -49,10 +64,10 @@ code {
     monospace;
 }
 .nav{ 
-  background-color: rgb(67, 85, 143);
+  background-color: rgb(51, 51, 51);
   color: white !important;
   height: 100vh;
-  min-width: 200px;
+  min-width: 230px;
 }
 .nav ul {
   margin: 0;
@@ -62,7 +77,16 @@ code {
   flex-direction: column;
   padding: 0;
   list-style-type: none;
-  padding: 0 20px;
+  padding: 0;
 }
-.nav ul li { padding: 15px; }
-.nav ul li a { color: white; }
+
+.nav ul li { width: 100%; }
+.nav ul li a { 
+  color: rgb(223, 219, 219);
+  display: flex;
+  padding: 10px;
+  align-items: center;
+  justify-content: flex-start;
+  text-decoration: none;
+ }
+ .nav ul li a img { width: 30px; justify-self: flex-end; margin-left: auto;}
