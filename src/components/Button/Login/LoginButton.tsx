@@ -1,3 +1,4 @@
+import { env } from 'process';
 import React, {FunctionComponent} from 'react';
 
 import { GoogleLogin } from 'react-google-login';
@@ -17,10 +18,15 @@ const LoginButton: FunctionComponent = () =>  {
   const onFailure = (res: any) => {
     
   };
-
+  const getRedirectUri = () => {
+      if (env.NODE_ENV === 'production')
+      return 'http://crypto-dashboard-client.herokuapp.com';
+      return 'http:localhost:3000';
+  }
   return (
     <div>
       <GoogleLogin
+         redirectUri={getRedirectUri()}
         clientId={clientId}
         buttonText="Login"
         onSuccess={onSuccess}
