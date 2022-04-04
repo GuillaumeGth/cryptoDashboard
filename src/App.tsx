@@ -16,6 +16,9 @@ function App() {
           <Routes>
             <Route path="/" element={ <Dashboard />} />                         
           </Routes>
+          <Routes>
+            <Route path="/wallet" element={ <Dashboard />} />                         
+          </Routes>
         </div>
     </div>
     </Provider>

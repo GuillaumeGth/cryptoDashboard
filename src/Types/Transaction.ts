@@ -3,4 +3,5 @@ export type Transaction = {
     finalAmount: string;
     date: string;
     price: string;
+    status: string;
 }

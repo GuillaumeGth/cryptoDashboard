@@ -63,7 +63,7 @@ const Dashboard : FunctionComponent =  () => {
         });
     }
     const getRawTotalValue = () => {
-        const transacs = getRows();
+        const transacs = getCompletedRows();
         if (!transacs || !quotes) return 0;
         let total = 0;
         transacs.forEach((element: Transaction) => {
@@ -89,12 +89,12 @@ const Dashboard : FunctionComponent =  () => {
             }            
         }
         fetch(`https://freecurrencyapi.net/api/v2/latest?apikey=eca98870-6693-11ec-a0ad-47d5390f7f7f&base_currency=USD`, init).then(res => res.json().then(data => {                                    
-            setCurrencyRate(data.data);
+            setCurrencyRate(data.data);            
             setCurrencyRateLoading(false);
         }));
     }
     const getRawTotalSpent = () => {
-        const transacs = getRows();
+        const transacs = getCompletedRows();
         if (!currencyRate){
             loadCurrencyRate();
             return 0;
@@ -136,7 +136,7 @@ const Dashboard : FunctionComponent =  () => {
     }
     const getAverageCost = () => {
         if (!selectedCurrency) return null;
-        const rows = getRows();
+        const rows = getCompletedRows();
         let total = 0;
         let i = 0;
         rows?.forEach((e: Transaction) => {
@@ -207,13 +207,16 @@ const Dashboard : FunctionComponent =  () => {
                 "Accepts": "application/json"              
             }            
         }
-        fetch(`${getApiUrl()}/crypto`, init).then(res => res.json().then(data => {                        
+        fetch(`${getApiUrl()}/crypto?user=${user.email}`, init).then(res => res.json().then(data => {                        
             setTransactions(data);
             setLoading(false);
             loadCurrencies(data);
         }));
     }, [transactions, loading, user.email]);
-    const [quotes, setQuotes] = useState<any>(null);    
+    const [quotes, setQuotes] = useState<any>(null);
+    const getCompletedRows = () => {
+        return getRows()?.filter(t => t.status === 'Completed');
+    }  
     const getRows = () => {        
         if (selectedCurrency){
             return transactions?.filter(e => e.finalAmount.toLowerCase().trim().split(' ')[1] === selectedCurrency.symbol.toLowerCase())
@@ -228,9 +231,13 @@ const Dashboard : FunctionComponent =  () => {
         if (!currencies || !cryptoData) return '';
         return currencies.filter(c => c.symbol === cryptoData?.symbol)[0].logo;
     }
-    return (<div className="content flex column">               
-                <div className="box flex column">                    
-                        <div className="self-align-start">Transactions</div>
+    return (<div className="content flex column">   
+            {loading &&
+            <div className="load">
+                <hr/><hr/><hr/><hr/>
+            </div>}
+                <div className="box flex column"> 
+                    {transactions && <div className="self-align-start">Transactions</div>}                        
                         {
                         transactions && currencies && 
                         <div className="grid-header flex row">
@@ -241,7 +248,7 @@ const Dashboard : FunctionComponent =  () => {
                                 options={currencies}                    
                                 renderInput={(params) => <TextField {...params} variant="standard" label="Currency" />}
                             />                    
-                        {cryptoData && currencies &&
+                        {cryptoData && currencies && currencyRate &&
                             <div className="price data flex row">
                                 <Avatar sx={{ width: 26, height: 26, marginRight: 1 }}
                                 alt="currency icon" 
@@ -269,8 +276,24 @@ const Dashboard : FunctionComponent =  () => {
                             pageSize={10}                                  
                             density="compact"                 
                             rows={getRows() ?? []}
-                            columns={[{field: 'amount', width: 120}, { field: 'price', width: 180}, { field: 'date', width: 120 },
-                        {field: 'fees', width: 90}, {field: 'finalAmount', description: 'final amount', width: 180}]}                                                                                
+                            columns={[
+                                {
+                                    field: "action",
+                                    headerName: "Actions",
+                                    sortable: false,
+                                    renderCell: (params) => {
+                                        const onClick = () => {
+                                            console.log(params.row.status);
+                                            debugger
+                                        };
+                                        
+                                        return (<button onClick={onClick}>ignore</button>)}},
+                                {field: 'amount', width: 120}, 
+                                { field: 'price', width: 180}, 
+                                { field: 'date', width: 120 },
+                                {field: 'fees', width: 90},                                
+                                {field: 'finalAmount', description: 'final amount', width: 180},
+                                {field: 'status', width: 90},]}                                                                                
                             />}
                     </div>
                     <div className="flex">                                        
